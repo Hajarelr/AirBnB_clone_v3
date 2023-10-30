@@ -1,35 +1,30 @@
 #!/usr/bin/python3
-"""index of views"""
+"""index"""
 from api.v1.views import app_views
 from flask import jsonify
 from models import storage
-from models.amenity import Amenity
-from models.city import City
-from models.place import Place
-from models.review import Review
-from models.state import State
 from models.user import User
-from collections import OrderedDict
+from models.place import Place
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.review import Review
 
-class_plurals = {'amenities': Amenity, 'cities': City, 'places': Place,
-                 'reviews': Review, 'states': State, 'users': User}
+classes = {"users": "User", "places": "Place", "states": "State",
+           "cities": "City", "amenities": "Amenity",
+           "reviews": "Review"}
 
 
-@app_views.route('/status', strict_slashes=False)
+@app_views.route('/status', methods=['GET'])
 def status():
-    """status of api v1"""
-    status = {"status": "OK"}
-    return jsonify(status)
+    ''' routes to status page '''
+    return jsonify({'status': 'OK'})
 
 
-@app_views.route('/stats', strict_slashes=False)
-def stats():
-    """ Returns itemized count of objects in storage by class
-
-    """
-    stats = OrderedDict()
-    for key in sorted(class_plurals.keys()):
-        count = storage.count(class_plurals[key])
-        if count > 0:
-            stats[key] = count
-    return jsonify(stats)
+@app_views.route('/stats', methods=['GET'])
+def count():
+    '''retrieves the number of each objects by type'''
+    count_dict = {}
+    for cls in classes:
+        count_dict[cls] = storage.count(classes[cls])
+    return jsonify(count_dict)
